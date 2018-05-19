@@ -1,86 +1,89 @@
 <?php
-include_once 'funciones.php';
+include_once 'funciones_tienda.php';
 include_once 'Carrito.php';
 session_start();
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <title>Tienda</title>
-    <link href="bootstrap.css" rel="stylesheet" type="text/css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, maximum-scale=1">
+
+    <title>Homepage</title>
+    <link rel="icon" href="../favicon.png" type="image/png">
+    <link rel="shortcut icon" href="../favicon.ico" type="img/x-icon">
+
+    <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,800italic,700italic,600italic,400italic,300italic,800,700,600' rel='stylesheet' type='text/css'>
+
+    <link href="../css/bootstrap.css" rel="stylesheet" type="text/css">
+    <link href="../css/style.css" rel="stylesheet" type="text/css">
+    <link href="../css/font-awesome.css" rel="stylesheet" type="text/css">
+    <link href="../css/responsive.css" rel="stylesheet" type="text/css">
+    <link href="../css/magnific-popup.css" rel="stylesheet" type="text/css">
+
 </head>
+
 <body>
 
 
-<div class="container-fluid">
-    <header class="modal-header">
-        <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-            <a class="navbar-brand" href="#">PROYECTO TIENDA</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="index.php">INICIO</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php">OFERTAS</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="quienessomos.php">QUIENES SOMOS</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="contacto.php">CONTACTO</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php?categoria=all">PRODUCTOS</a>
-                    </li>
-                </ul>
-                <form class="form-inline my-2 my-lg-0" method="get" action="busqueda.php">
-                    <input class="form-control mr-sm-2" type="text" name="campobusqueda" id="campobusqueda" placeholder="Buscar" aria-label="Search">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Buscar</button>
-                </form>
-            </div>
-        </nav>
-    </header>
-
-</br>
-
-
-    <div class="row">
-        <div class="col col-lg-2  border">
-
-            <h1 class="h3">PRODUCTOS</h1>
-            <a class="dropdown-item" href="index.php?categoria=all">Ver Todos</a>
+<nav class="main-nav-outer" id="test">
+    <!--main-nav-start-->
+    <div class="container">
+        <ul class="main-nav">
+            <li><a href="../home.php">INICIO</a></li>
+            <li><a href="../tournaments.php">TORNEOS</a></li>
+            <li><a href="quienessomos.php">TIENDA</a></li>
+            <li class="small-logo"><a href="../home.php"><img src="../img/small-logo.png" alt=""></a></li>
+            <li><a href="quienessomos.php">QUIENES SOMOS</a></li>
 
             <?php
-            $conexion = conectar();
-            $sql = "SELECT distinct categoria from articulos";
+            if(!isset($_SESSION['usuario'])) {
+                ?>
 
-            $r = $conexion->query($sql);
+                <li><a href='../login.php'>Iniciar Sesión</a></li>
 
-            while($d = $r->fetch_assoc()) {
+                <?php
+            }else{
+                ?>
 
-                for ($i = 0; $i < count($d); $i++) {
-                    echo "<a class='dropdown-item' href='index.php?categoria=".$d['categoria']."'>".strtoupper($d['categoria'])."</a>";
-                }
+                <li><a href="../profile.php">Mi Perfil</a></li>
+                <li><a href="../logout.php">Cerrar Sesión</a></li>
+
+                <?php
             }
             ?>
+        </ul>
+
+        <a class="res-nav_click" href="#"><i class="fa fa-bars"></i></a>
+    </div>
+</nav>
+<!--main-nav-end-->
 
 
 
-        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         <div class="col col-lg-8 style='float: none;margin-left: auto;margin-right: auto;'">
         <?php
 
         if(isset($_GET['categoria'])){
             if($_GET['categoria'] == 'all'){
-                echo vertodoslosproductos();
+                header('location:ver_productos.php');
             }else {
                 echo verproductosporcategoria($_GET['categoria']);
             }
@@ -102,7 +105,7 @@ session_start();
                         $_SESSION['nick'] = $_POST['nick'];
                     }
                     echo "<a href='cerrarsesion.php'>Cerrar Sesión</a></br>";
-                    echo "<a href='verpedidos.php'>Gestionar Pedidos</a></br>";
+                    echo "<a href='verpedidos.php'>Ver Pedidos</a></br>";
 
                     if(!isset($_SESSION['carrito'])) {
                         echo "<a href='ver_carrito.php'>Ver Carrito(0)</a></br>";
@@ -114,12 +117,14 @@ session_start();
                         echo "</a></br>";
                     }
                     echo "<a href='ver_perfil.php'>Ver Perfil</a></br>";
-                    $conexion = conectar();
+                    $conexion = conectar_tienda();
                     if(verpermiso($_SESSION['nick'],$conexion) == 3){
                         echo "<a href='gestion_clientes.php'>Gestionar Clientes</a></br>";
                     }
                     if(verpermiso($_SESSION['nick'],$conexion) == 1 || verpermiso($_SESSION['nick'],$conexion) == 3 ){
                         echo "<a href='gestion_articulos.php'>Gestionar Articulos</a></br>";
+                        echo "<a href='gestion_pedidos.php'>Gestionar Pedidos</a></br>";
+                        echo "<a href='ver_informes.php'>Ver Informes</a></br>";
                     }
                 }else{
 
@@ -150,7 +155,7 @@ session_start();
         }else{
             echo "<a href='cerrarsesion.php'>Cerrar Sesión</a></br>";
             if($_SESSION['nick']!=="invitado") {
-                echo "<a href='verpedidos.php'>Gestionar Pedidos</a></br>";
+                echo "<a href='verpedidos.php'>Ver Pedidos</a></br>";
             }
             if(!isset($_SESSION['carrito'])) {
                 echo "<a href='ver_carrito.php'>Ver Carrito</a></br>";
@@ -161,30 +166,39 @@ session_start();
                 echo "</a></br>";
             }
             echo "<a href='ver_perfil.php'>Ver Perfil</a></br>";
-            $conexion = conectar();
+            $conexion = conectar_tienda();
             if(verpermiso($_SESSION['nick'],$conexion) == 3){
                 echo "<a href='gestion_clientes.php'>Gestionar Clientes</a></br>";
             }
             if(verpermiso($_SESSION['nick'],$conexion) == 1 || verpermiso($_SESSION['nick'],$conexion) == 3 ){
                 echo "<a href='gestion_articulos.php'>Gestionar Articulos</a></br>";
+                echo "<a href='gestion_pedidos.php'>Gestionar Pedidos</a></br>";
+                echo "<a href='ver_informes.php'>Ver Informes</a></br>";
             }
         }
         ?>
         </br>
     </div>
 
+<footer class="footer">
+    <div class="container">
+        <div class="footer-logo"><a href="#"><img src="img/footer-logo.png" alt=""></a></div>
+        <span class="copyright">&copy; RandomTournament. All Rights Reserved</span>
+        <div class="credits">
+            <!--
+      All the links in the footer should remain intact.
+      You can delete the links only if you purchased the pro version.
+      Licensing information: https://bootstrapmade.com/license/
+      Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/buy/?theme=Knight
+    -->
+            RandomTournament by Sergio Molina
+        </div>
     </div>
-
-    <footer class="modal-footer">ProyectoTienda S.L. Copyright 2018</footer>
-</div>
-
-
-
-
-
+</footer>
 
 
 
 
 </body>
+
 </html>

@@ -1,5 +1,5 @@
 <?php
-include_once 'funciones.php';
+include_once 'funciones_tienda.php';
 session_start();
 /**
  * Created by PhpStorm.
@@ -9,7 +9,8 @@ session_start();
  */
 
 $cod = $_POST['cod'];
-$conexion = conectar();
+$conexion = conectar_tienda();
 $sql = "UPDATE pedidos SET estado='procesado' WHERE cod_pedido=$cod";
 $conexion->query($sql);
+
 header('location:verpedidos.php');

@@ -1,5 +1,5 @@
 <?php
-include_once 'funciones.php';
+include_once 'funciones_tienda.php';
 include_once 'Carrito.php';
 session_start();
 ?>
@@ -58,7 +58,7 @@ session_start();
             <a class="dropdown-item" href="index.php?categoria=all">Ver Todos</a>
 
             <?php
-            $conexion = conectar();
+            $conexion = conectar_tienda();
             $sql = "SELECT distinct categoria from articulos";
 
             $r = $conexion->query($sql);
@@ -136,20 +136,6 @@ session_start();
                 if ($_POST['nombre']!=="" && $_POST['nick']!=="" && $_POST['pass']!=="") {
                     //if (isset($_POST['nombre']) && isset($_POST['cif']) && isset($_POST['razon']) && isset($_POST['telf']) && isset($_POST['mail']) && isset($_POST['nick']) && isset($_POST['pass'])) {
 
-                    function existenick($nick){
-                        $sql = "SELECT * from clientes WHERE nick LIKE '$nick'";
-                        $conexion = conectar();
-                        $res = $conexion->query($sql);
-                        $dato = $res->num_rows;
-
-                        if($dato==1){
-                            return true;
-                        }else{
-                            return false;
-                        }
-
-                    }
-
 
                     $nombre = $_POST['nombre'];
                     $nick = $_POST['nick'];
@@ -159,7 +145,7 @@ session_start();
 
                     if(existenick($nick)==false){
 
-                        $conexion = conectar();
+                        $conexion = conectar_tienda();
 
                         if($conexion) {
 
@@ -169,6 +155,7 @@ session_start();
 
                             echo "<div class='form-group'><div class='col-md-4 col-md-offset-4'>";
                             echo "<p class='alert-success'>Se ha registrado correctamente.</p>";
+                            $_SESSION['nick'] = $nick;
                             echo "<a href='index.php'>Haga click aquí para comenzar su compra</a>";
                             echo "</div></div>";
 
@@ -203,22 +190,26 @@ session_start();
                             $_SESSION['nick'] = $_POST['nick'];
                         }
                         echo "<a href='cerrarsesion.php'>Cerrar Sesión</a></br>";
-                        echo "<a href='verpedidos.php'>Gestionar Pedidos</a></br>";
-                        echo "<a href='ver_perfil.php'>Ver Perfil</a></br>";
+                        echo "<a href='verpedidos.php'>Ver Pedidos</a></br>";
+
                         if(!isset($_SESSION['carrito'])) {
-                            echo "<a href='ver_carrito.php'>Ver Carrito</a></br>";
+                            echo "<a href='ver_carrito.php'>Ver Carrito(0)</a></br>";
                         }else{
+                            $_SESSION["carrito"] = new Carrito($_SESSION['nick']);
                             echo "<a href='ver_carrito.php'>Ver Carrito";
                             $prod = $_SESSION['carrito']->getproductos();
                             echo "(".count($prod).")";
                             echo "</a></br>";
                         }
-                        $conexion = conectar();
+                        echo "<a href='ver_perfil.php'>Ver Perfil</a></br>";
+                        $conexion = conectar_tienda();
                         if(verpermiso($_SESSION['nick'],$conexion) == 3){
                             echo "<a href='gestion_clientes.php'>Gestionar Clientes</a></br>";
                         }
                         if(verpermiso($_SESSION['nick'],$conexion) == 1 || verpermiso($_SESSION['nick'],$conexion) == 3 ){
                             echo "<a href='gestion_articulos.php'>Gestionar Articulos</a></br>";
+                            echo "<a href='gestion_pedidos.php'>Gestionar Pedidos</a></br>";
+                            echo "<a href='ver_informes.php'>Ver Informes</a></br>";
                         }
                     }else{
 
@@ -249,7 +240,7 @@ session_start();
             }else{
                 echo "<a href='cerrarsesion.php'>Cerrar Sesión</a></br>";
                 if($_SESSION['nick']!=="invitado") {
-                    echo "<a href='verpedidos.php'>Gestionar Pedidos</a></br>";
+                    echo "<a href='verpedidos.php'>Ver Pedidos</a></br>";
                 }
                 if(!isset($_SESSION['carrito'])) {
                     echo "<a href='ver_carrito.php'>Ver Carrito</a></br>";
@@ -260,12 +251,14 @@ session_start();
                     echo "</a></br>";
                 }
                 echo "<a href='ver_perfil.php'>Ver Perfil</a></br>";
-                $conexion = conectar();
+                $conexion = conectar_tienda();
                 if(verpermiso($_SESSION['nick'],$conexion) == 3){
                     echo "<a href='gestion_clientes.php'>Gestionar Clientes</a></br>";
                 }
                 if(verpermiso($_SESSION['nick'],$conexion) == 1 || verpermiso($_SESSION['nick'],$conexion) == 3 ){
                     echo "<a href='gestion_articulos.php'>Gestionar Articulos</a></br>";
+                    echo "<a href='gestion_pedidos.php'>Gestionar Pedidos</a></br>";
+                    echo "<a href='ver_informes.php'>Ver Informes</a></br>";
                 }
             }
             ?>

@@ -1,5 +1,5 @@
 <?php
-include_once 'funciones.php';
+include_once 'funciones_tienda.php';
 include_once 'Carrito.php';
 include_once 'Producto.php';
 session_start();
@@ -59,7 +59,7 @@ session_start();
             <a class="dropdown-item" href="index.php?categoria=all">Ver Todos</a>
 
             <?php
-            $conexion = conectar();
+            $conexion = conectar_tienda();
             $sql = "SELECT distinct categoria from articulos";
 
             $r = $conexion->query($sql);
@@ -123,7 +123,7 @@ session_start();
                     return $imagen;
                 }
 
-                $conexion = conectar();
+                $conexion = conectar_tienda();
                 $carrito = $_SESSION['carrito'];
                 $ultimaClave = sacarClave($conexion);
                 $ultimaClave = $ultimaClave[0] + 1;
@@ -177,22 +177,26 @@ session_start();
                             $_SESSION['nick'] = $_POST['nick'];
                         }
                         echo "<a href='cerrarsesion.php'>Cerrar Sesión</a></br>";
-                        echo "<a href='verpedidos.php'>Gestionar Pedidos</a></br>";
-                        echo "<a href='ver_perfil.php'>Ver Perfil</a></br>";
+                        echo "<a href='verpedidos.php'>Ver Pedidos</a></br>";
+
                         if(!isset($_SESSION['carrito'])) {
-                            echo "<a href='ver_carrito.php'>Ver Carrito</a></br>";
+                            echo "<a href='ver_carrito.php'>Ver Carrito(0)</a></br>";
                         }else{
+                            $_SESSION["carrito"] = new Carrito($_SESSION['nick']);
                             echo "<a href='ver_carrito.php'>Ver Carrito";
                             $prod = $_SESSION['carrito']->getproductos();
                             echo "(".count($prod).")";
                             echo "</a></br>";
                         }
-                        $conexion = conectar();
+                        echo "<a href='ver_perfil.php'>Ver Perfil</a></br>";
+                        $conexion = conectar_tienda();
                         if(verpermiso($_SESSION['nick'],$conexion) == 3){
                             echo "<a href='gestion_clientes.php'>Gestionar Clientes</a></br>";
                         }
                         if(verpermiso($_SESSION['nick'],$conexion) == 1 || verpermiso($_SESSION['nick'],$conexion) == 3 ){
                             echo "<a href='gestion_articulos.php'>Gestionar Articulos</a></br>";
+                            echo "<a href='gestion_pedidos.php'>Gestionar Pedidos</a></br>";
+                            echo "<a href='ver_informes.php'>Ver Informes</a></br>";
                         }
                     }else{
 
@@ -223,10 +227,10 @@ session_start();
             }else{
                 echo "<a href='cerrarsesion.php'>Cerrar Sesión</a></br>";
                 if($_SESSION['nick']!=="invitado") {
-                    echo "<a href='verpedidos.php'>Gestionar Pedidos</a></br>";
+                    echo "<a href='verpedidos.php'>Ver Pedidos</a></br>";
                 }
                 if(!isset($_SESSION['carrito'])) {
-                    echo "<a href='ver_carrito.php'>Ver Carrito(0)</a></br>";
+                    echo "<a href='ver_carrito.php'>Ver Carrito</a></br>";
                 }else{
                     echo "<a href='ver_carrito.php'>Ver Carrito";
                     $prod = $_SESSION['carrito']->getproductos();
@@ -234,12 +238,14 @@ session_start();
                     echo "</a></br>";
                 }
                 echo "<a href='ver_perfil.php'>Ver Perfil</a></br>";
-                $conexion = conectar();
+                $conexion = conectar_tienda();
                 if(verpermiso($_SESSION['nick'],$conexion) == 3){
                     echo "<a href='gestion_clientes.php'>Gestionar Clientes</a></br>";
                 }
                 if(verpermiso($_SESSION['nick'],$conexion) == 1 || verpermiso($_SESSION['nick'],$conexion) == 3 ){
                     echo "<a href='gestion_articulos.php'>Gestionar Articulos</a></br>";
+                    echo "<a href='gestion_pedidos.php'>Gestionar Pedidos</a></br>";
+                    echo "<a href='ver_informes.php'>Ver Informes</a></br>";
                 }
             }
             ?>
