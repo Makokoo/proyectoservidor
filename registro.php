@@ -1,5 +1,5 @@
 <?php
-include_once 'funciones_tienda.php';
+include_once 'funciones.php';
 include_once 'Carrito.php';
 session_start();
 ?>
@@ -58,7 +58,7 @@ session_start();
             <a class="dropdown-item" href="index.php?categoria=all">Ver Todos</a>
 
             <?php
-            $conexion = conectar_tienda();
+            $conexion = conectar();
             $sql = "SELECT distinct categoria from articulos";
 
             $r = $conexion->query($sql);
@@ -145,7 +145,7 @@ session_start();
 
                     if(existenick($nick)==false){
 
-                        $conexion = conectar_tienda();
+                        $conexion = conectar();
 
                         if($conexion) {
 
@@ -202,7 +202,7 @@ session_start();
                             echo "</a></br>";
                         }
                         echo "<a href='ver_perfil.php'>Ver Perfil</a></br>";
-                        $conexion = conectar_tienda();
+                        $conexion = conectar();
                         if(verpermiso($_SESSION['nick'],$conexion) == 3){
                             echo "<a href='gestion_clientes.php'>Gestionar Clientes</a></br>";
                         }
@@ -251,7 +251,7 @@ session_start();
                     echo "</a></br>";
                 }
                 echo "<a href='ver_perfil.php'>Ver Perfil</a></br>";
-                $conexion = conectar_tienda();
+                $conexion = conectar();
                 if(verpermiso($_SESSION['nick'],$conexion) == 3){
                     echo "<a href='gestion_clientes.php'>Gestionar Clientes</a></br>";
                 }

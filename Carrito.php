@@ -7,7 +7,7 @@
  * Time: 8:03
  */
 
-include_once 'funciones_tienda.php';
+include_once 'funciones.php';
 class Carrito{
 
     private $productos=array();
@@ -47,7 +47,7 @@ class Carrito{
         for($i=0;$i<count($this->productos);$i++){
             $producto = $this->productos[$i];
             $sql = "SELECT * FROM articulos WHERE cod_articulo = $producto";
-            $conexion = conectar_tienda();
+            $conexion = conectar();
             $r = $conexion->query($sql);
             $resultado = $r->fetch_assoc();
             $precio = $precio + $resultado['precio'] * $this->cantidades[$i];

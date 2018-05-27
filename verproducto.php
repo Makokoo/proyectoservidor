@@ -1,190 +1,205 @@
 <?php
-include_once 'funciones_tienda.php';
+include_once 'funciones.php';
 include_once 'Carrito.php';
-session_start();
-?>
+include_once '../funciones.php';
+include_once '../header.php';
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Tienda</title>
-    <link href="bootstrap.css" rel="stylesheet" type="text/css">
-</head>
-<body>
+header("Content-Type: text/html;charset=utf-8");
+if(!isset($_POST['message'])) {
+    ?>
 
 
-<div class="container-fluid">
-    <header class="modal-header">
-        <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-            <a class="navbar-brand" href="#">PROYECTO TIENDA</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+    <div class="container">
+    <div class="col col-lg-8 style='float: none;margin-left: auto;margin-right: auto;'">
+    <?php
 
-            <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="index.php">INICIO</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php">OFERTAS</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="quienessomos.php">QUIENES SOMOS</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="contacto.php">CONTACTO</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php?categoria=all">PRODUCTOS</a>
-                    </li>
-                </ul>
-                <form class="form-inline my-2 my-lg-0" method="get" action="busqueda.php">
-                    <input class="form-control mr-sm-2" type="text" name="campobusqueda" id="campobusqueda" placeholder="Buscar" aria-label="Search">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Buscar</button>
-                </form>
-            </div>
-        </nav>
-    </header>
+    if (isset($_GET['codarticulo'])) {
+        //echo verproducto($_GET['codarticulo']);
+        $id_articulo = $_GET['codarticulo'];
+        $conexion = conectar();
+        $acentos = $conexion->query("SET NAMES 'utf8'");
+        $datos_articulo = sacardatoarticulo($_GET['codarticulo'], $conexion);
+        $valoraciones = getValoraciones($_GET['codarticulo']);
+        $nombre_fichero = "imagenes/$id_articulo.png";
+        $imagen = "";
+        if (file_exists($nombre_fichero)) {
+            $imagen="..admin/$nombre_fichero";
+        } else {
+            $imagen=$datos_articulo['imagen'];
+        }
 
-    </br>
+        ?>
 
 
-    <div class="row">
-        <div class="col col-lg-2  border">
+        <!-- Page Content -->
+        <div class="container">
+            <br><br>
 
-            <h1 class="h3">PRODUCTOS</h1>
-            <a class="dropdown-item" href="index.php?categoria=all">Ver Todos</a>
+            <div class="row">
 
-            <?php
-            $conexion = conectar_tienda();
-            $sql = "SELECT distinct categoria from articulos";
+                <div class="col-md-12">
 
-            $r = $conexion->query($sql);
+                    <div class="thumbnail">
+                        <img class="img-responsive" style="max-height: 300px" src="<?=$imagen?>" alt="">
+                        <div class="caption-full">
+                            <h2 class="text-left"><?= $datos_articulo['nombre_articulo'] ." - ". $datos_articulo['precio']."€"?></h2>
+                            <h3><p><?= $datos_articulo['descripcion_articulo'] ?></p></h3>
+                        </div>
+                        <div class="ratings" style="margin-top: 15px">
+                            <p class="pull-right"><?= count($valoraciones) . " reviews" ?></p>
+                            <p>
+                                <?php
+                                $valoracionmedia = getValoracionMedia($_GET['codarticulo']);
+                                $contador = 0;
+                                echo "Valoración media: ";
+                                for ($i = 0; $i < $valoracionmedia; $i++) {
+                                    echo "<span class=\"fa fa-star\"></span>";
+                                    $contador++;
+                                }
 
-            while($d = $r->fetch_assoc()) {
+                                if ($contador < 5) {
+                                    for ($i = $contador; $i < 5; $i++) {
+                                        echo "<span class=\"fa fa-star-o\"></span>";
+                                    }
+                                }
+                                //echo $valoracionmedia;
+                                //echo "      " . round($valoracionmedia, 0) . " estrellas";
+                                ?>
 
-                for ($i = 0; $i < count($d); $i++) {
-                    echo "<a class='dropdown-item' href='index.php?categoria=".$d['categoria']."'>".strtoupper($d['categoria'])."</a>";
+
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="well">
+
+                        <?php
+
+                        for ($i = 0;
+                        $i < count($valoraciones);
+                        $i++){
+
+                        $dato = $valoraciones[$i];
+                        $nombre_usuario = getNombreId($dato['id_usuario']);
+                        $contador = 0;
+                        $idusuario = $dato['id_usuario'];
+                        $datos_usuario = getDatosUsuario($nombre_usuario);
+                        $avatar = "../img/default-avatar.png";
+
+                        if (!$datos_usuario['avatar'] == null || !$datos_usuario['avatar'] == "") {
+                            $avatar = "../avatar/" . $datos_usuario['id_usuario'] . ".png";
+                        }
+
+                        echo "<div class=\"row\">
+                                        <div class=\"col-md-12\"><img style='max-height: 20px; margin-right: 15px;' src='$avatar'>$nombre_usuario&nbsp;-&nbsp;";
+
+                        for ($j = 0; $j < $dato['valoracion']; $j++) {
+                            echo "<span class=\"fa fa-star\"></span>";
+                            $contador++;
+                        }
+
+                        if ($contador < 5) {
+                            for ($j = $contador; $j < 5; $j++) {
+
+                                echo "<span class=\"fa fa-star-o\"></span>";
+                            }
+                        }
+                        ?>
+
+                        <p><?= $dato['comentario'] ?></p>
+                    </div>
+                </div>
+
+                <hr>
+
+
+                <?php
                 }
-            }
-            ?>
-
-
-
+                if (isset($_SESSION['usuario'])) {
+                    echo "<div class=\"row clearfix\">
+    <div class=\"col-md-12 column\">
+      
+        <div class=\"panel-heading\">
+          NUEVA REVIEW
         </div>
+        
+                 
+<form action=\"verproducto.php\" method=\"post\" role=\"form\" class=\"contactForm\">
+							<div class=\"form-group\">
+								<textarea class=\"form-control input-text text-area\" name=\"message\" id=\"message\" required ></textarea>
+							    Valoración: <input type='number' min='0' max='5' id='valoracion' name='valoracion' required>
+							</div>
+                            <input type='hidden' name='idarticulo' id='idarticulo' value='$id_articulo' >
+							<div class=\"text-center\"><button type=\"submit\" class=\"input-btn\">Enviar Review</button></div>
+						</form>
 
-        <div class="col col-lg-8 style='float: none;margin-left: auto;margin-right: auto;'">
-            <?php
+        
 
-            if(isset($_GET['codarticulo'])){
-                echo verproducto($_GET['codarticulo']);
-            }else {
-                echo "<header>OFERTAS ESTRELLA</header>";
-                echo verproductosoferta();
-            }
-            ?>
-        </div>
+      </div>
+    
+  </div><hr>";
 
-        <div class="col col-lg-2  border">
-            <div class="col col-lg-12 bg"><h2>LOGIN</h2></div>
 
-            <?php
-            if(!isset($_SESSION['nick']) || $_SESSION['nick']=="invitado") {
-                if (isset($_POST['nick']) && isset($_POST['pass'])) {
-                    if (logincorrecto($_POST['nick'], $_POST['pass']) == true || isset($_SESSION['nick'])) {
-                        if(!isset($_SESSION['nick'])) {
-                            $_SESSION['nick'] = $_POST['nick'];
-                        }
-                        echo "<a href='cerrarsesion.php'>Cerrar Sesión</a></br>";
-                        echo "<a href='verpedidos.php'>Ver Pedidos</a></br>";
+                    echo "</div>";
 
-                        if(!isset($_SESSION['carrito'])) {
-                            echo "<a href='ver_carrito.php'>Ver Carrito(0)</a></br>";
-                        }else{
-                            $_SESSION["carrito"] = new Carrito($_SESSION['nick']);
-                            echo "<a href='ver_carrito.php'>Ver Carrito";
-                            $prod = $_SESSION['carrito']->getproductos();
-                            echo "(".count($prod).")";
-                            echo "</a></br>";
-                        }
-                        echo "<a href='ver_perfil.php'>Ver Perfil</a></br>";
-                        $conexion = conectar_tienda();
-                        if(verpermiso($_SESSION['nick'],$conexion) == 3){
-                            echo "<a href='gestion_clientes.php'>Gestionar Clientes</a></br>";
-                        }
-                        if(verpermiso($_SESSION['nick'],$conexion) == 1 || verpermiso($_SESSION['nick'],$conexion) == 3 ){
-                            echo "<a href='gestion_articulos.php'>Gestionar Articulos</a></br>";
-                            echo "<a href='gestion_pedidos.php'>Gestionar Pedidos</a></br>";
-                            echo "<a href='ver_informes.php'>Ver Informes</a></br>";
-                        }
-                    }else{
-
-                        echo "<b class='bg-danger'>Error, credenciales incorrectas</b>";
-                        echo "<form action=\"index.php\" method=\"post\">
-                    Usuario: <input type=\"text\" name=\"nick\" id=\"nick\">
-                    Contraseña: <input type=\"password\" name=\"pass\" id=\"pass\">
-
-                    <input type=\"submit\" name=\"login\" id=\"login\" value=\"Ingresar\" style=\"margin-top:10px\">
-                </form>";
-                    }
                 } else {
-
-                    ?>
-
-                    <form action="index.php" method="post">
-                        Usuario: <input type="text" name="nick" id="nick">
-                        Contraseña: <input type="password" name="pass" id="pass">
-
-                        <input type="submit" name="login" id="login" value="Ingresar" style="margin-top:10px">
-                        <a href="registro.php">Registrarse</a>
-                    </form>
-                    <?php
-                    if(isset($_SESSION['carrito'])){
-                        echo "<a href='ver_carrito.php'>Ver Carrito</a></br>";
-                    }
-                }
-            }else{
-                echo "<a href='cerrarsesion.php'>Cerrar Sesión</a></br>";
-                if($_SESSION['nick']!=="invitado") {
-                    echo "<a href='verpedidos.php'>Ver Pedidos</a></br>";
-                }
-                if(!isset($_SESSION['carrito'])) {
-                    echo "<a href='ver_carrito.php'>Ver Carrito</a></br>";
-                }else{
-                    echo "<a href='ver_carrito.php'>Ver Carrito";
-                    $prod = $_SESSION['carrito']->getproductos();
-                    echo "(".count($prod).")";
-                    echo "</a></br>";
-                }
-                echo "<a href='ver_perfil.php'>Ver Perfil</a></br>";
-                $conexion = conectar_tienda();
-                if(verpermiso($_SESSION['nick'],$conexion) == 3){
-                    echo "<a href='gestion_clientes.php'>Gestionar Clientes</a></br>";
-                }
-                if(verpermiso($_SESSION['nick'],$conexion) == 1 || verpermiso($_SESSION['nick'],$conexion) == 3 ){
-                    echo "<a href='gestion_articulos.php'>Gestionar Articulos</a></br>";
-                    echo "<a href='gestion_pedidos.php'>Gestionar Pedidos</a></br>";
-                    echo "<a href='ver_informes.php'>Ver Informes</a></br>";
-                }
-            }
-            ?>
-            </br>
+                    echo "<hr><div class=\"row clearfix\">
+    <div class=\"col-md-12 column\">
+      
+        <div class=\"panel-heading\">
+          DEBES INICIAR SESIÓN PARA ENVIAR TU PROPIA REVIEW
         </div>
 
-    </div>
+      </div>
+    
+  </div><hr>";
 
-    <footer class="modal-footer">ProyectoTienda S.L. Copyright 2018</footer>
+
+                    echo "</div>";
+                }
+
+                ?>
+
+
+            </div>
+
+        </div>
+
+        </div>
+
+        </div>
+        <!-- /.container -->
+
+
+        <?php
+    } else {
+        echo "<header>OFERTAS ESTRELLA</header>";
+        echo verproductosoferta();
+    }
+}else{
+    $conexion = conectar();
+    $valoracion = $_POST['valoracion'];
+    $mensaje = $_POST['message'];
+    $id_articulo = $_POST['idarticulo'];
+    $id_usuario = getid($_SESSION['usuario']);
+    $mensaje = mysqli_real_escape_string($conexion, $mensaje);
+    $sql = "INSERT INTO valoraciones (id_usuario,id_articulo,valoracion,comentario) VALUES ($id_usuario,$id_articulo,$valoracion, '$mensaje')";
+    $conexion->query($sql);
+    if ($conexion->affected_rows > 0) {
+        echo "<div class=\"container\" style='margin: 250px'>";
+        echo "<h2 class='text-center'>Review guardada correctamente</h2>";
+        echo "</div>";
+        header("Refresh:3; url='verproducto.php?codarticulo=$id_articulo'");
+    }else{
+        echo "<div class=\"container\" style='margin: 250px'>";
+        echo "<h2 class='text-center'>No se ha podido guardar la review</h2>";
+        echo "</div>";
+        header("Refresh:3; url='verproducto.php?codarticulo=$id_articulo'");
+    }
+}
+            ?>
+        </div>
 </div>
 
-
-
-
-
-
-
-
-
-</body>
-</html>
+<?php
+include_once '../footer.php';
