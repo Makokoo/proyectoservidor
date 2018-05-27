@@ -45,6 +45,16 @@ if(!isset($_POST['message'])) {
                             <h2 class="text-left"><?= $datos_articulo['nombre_articulo'] ." - ". $datos_articulo['precio']."€"?></h2>
                             <h3><p><?= $datos_articulo['descripcion_articulo'] ?></p></h3>
                         </div>
+                        <br>
+                        <p>
+                        <?php
+                        if($datos_articulo['stock'] > 0){
+                            echo "<label style='color:green'>En stock</label><label> - Entrega en 2/3 días laborales</label>";
+                        }else{
+                            echo "<label style='color:darkred'>No disponible</label>";
+                        }
+                        ?>
+                        </p>
                         <div class="ratings" style="margin-top: 15px">
                             <p class="pull-right"><?= count($valoraciones) . " reviews" ?></p>
                             <p>
